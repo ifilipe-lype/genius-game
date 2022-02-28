@@ -1,15 +1,16 @@
-function GeniusGame() {
+function GeniusGame(colorTiles) {
   const state = {
     currentTileIndex: 0,
     score: 0,
     pattern: generatePattern(),
     colorTiles,
+    played: false,
   };
+
+  setupOnclickListener();
 
   return Object.freeze({
     init: gameInit,
-    gameOver: () => {},
-    restart: reset,
   });
 
   function enclosure(fn, ...values) {
@@ -29,11 +30,10 @@ function GeniusGame() {
   function lightColorTileOnThenOff(colorTile, timeout) {
     setTimeout(() => {
       colorTile.classList.add("selected");
-
       setTimeout(() => {
         colorTile.classList.remove("selected");
       }, 500);
-    }, timeout || 0);
+    }, timeout - 250);
   }
 
   function setupOnclickListener() {
@@ -41,40 +41,64 @@ function GeniusGame() {
       const getClosuredIndex = enclosure((index) => index, i);
 
       colorTiles[i].addEventListener("click", ({ target }) => {
-        lightColorTileOnThenOff(target);
-        checkClickedColorTile(getClosuredIndex());
+        setTimeout(() => {
+          target.classList.add("selected");
+          setTimeout(() => {
+            target.classList.remove("selected");
+            checkClickedColorTile(getClosuredIndex());
+          }, 500);
+        }, 0);
       });
     }
+  }
 
-    function checkClickedColorTile(clickedTileIndex) {
-      if (clickedTileIndex !== state.pattern[state.currentTileIndex]) {
-        state.colorTiles[clickedTileIndex].classList.add("wrong");
-        alert(`Uh! you failled! final score: ${state.score}`);
-        reset();
-      } else {
-        state.score++;
-        state.currentTileIndex++;
+  function checkClickedColorTile(clickedTileIndex) {
+    if (clickedTileIndex !== state.pattern[state.currentTileIndex]) {
+      state.colorTiles[clickedTileIndex].classList.add("wrong");
+      alert(
+        `Uh! you failed!\nfinal score: ${state.score}\nClick ok to play again`
+      );
+      reset();
+    } else {
+      state.score++;
+      state.currentTileIndex++;
 
-        if (state.currentTileIndex >= state.pattern.length) {
-          alert(`Uh! you've won! final score: ${state.score}`);
-          reset();
-        }
+      if (state.currentTileIndex >= state.pattern.length) {
+        alert(
+          `OOH OOH! you've won!\nActual score: ${state.score}\nClick ok to play the next level`
+        );
+        nextLevel();
       }
     }
   }
 
   function gameInit() {
-    showColorTilesPattern();
-    setupOnclickListener();
-    // check user's click event on panels
-
-    function showColorTilesPattern() {
-      // light the color based on the pattern.
-      for (let i = 0; i < state.pattern.length; ) {
-        const colorTile = state.colorTiles[state.pattern[i]];
-        lightColorTileOnThenOff(colorTile, 1000 * i++);
-      }
+    if (!state.played) {
+      state.played = true;
+      alert(
+        "Welcome to the genius\nFollow the pattern of light to win!!\n\nBy ifilipe-lype"
+      );
     }
+    // light the color based on the pattern.
+    for (let i = 0; i < state.pattern.length; ) {
+      const colorTile = state.colorTiles[state.pattern[i]];
+      lightColorTileOnThenOff(colorTile, 1000 * i++);
+    }
+  }
+
+  function nextLevel() {
+    Object.assign(state, {
+      pattern: generatePattern(),
+      currentTileIndex: 0,
+      colorTiles,
+    });
+
+    for (let colorTile of state.colorTiles) {
+      colorTile.classList.remove("selected");
+      colorTile.classList.remove("wrong");
+    }
+
+    gameInit();
   }
 
   function reset() {
@@ -84,6 +108,7 @@ function GeniusGame() {
       score: 0,
       currentTileIndex: 0,
       pattern: generatePattern(),
+      colorTiles,
     });
 
     for (let colorTile of state.colorTiles) {
@@ -91,7 +116,7 @@ function GeniusGame() {
       colorTile.classList.remove("wrong");
     }
 
-    gameInit();
+    setTimeout(gameInit, 1500);
   }
 }
 
