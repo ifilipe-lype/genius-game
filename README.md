@@ -3,6 +3,8 @@ My custom version of genius game from DIO Eduzz full stack dev bootcamp - JavaSc
 
 ![image](https://user-images.githubusercontent.com/60755982/155982168-76a1dc86-5f9b-473f-8a91-61b4729042f2.png)
 
+[PLAY IT RIGHT NOW](https://ifilipe-lype.github.io/genius-game/)
+
 ## Rules
 - You must follow the light pattern in exact order
 - Each level the light-on-and-off speed increases
