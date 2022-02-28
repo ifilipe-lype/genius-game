@@ -5,6 +5,7 @@ function GeniusGame(colorTiles) {
     pattern: generatePattern(),
     colorTiles,
     played: false,
+    level: 0,
   };
 
   setupOnclickListener();
@@ -17,10 +18,10 @@ function GeniusGame(colorTiles) {
     return () => fn(...values);
   }
 
-  function generatePattern(limit = 6, maxNum = 4) {
+  function generatePattern(limit = 0, maxNum = 4) {
     const pattern = [];
 
-    for (let i = 0; i < limit; i++) {
+    for (let i = 0; i < 4 + Math.ceil(limit / 2); i++) {
       pattern.push(Math.floor(Math.random() * maxNum));
     }
 
@@ -28,11 +29,13 @@ function GeniusGame(colorTiles) {
   }
 
   function lightColorTileOnThenOff(colorTile, timeout) {
+    let offTimeout = 550 - 25 * state.level;
+
     setTimeout(() => {
       colorTile.classList.add("selected");
       setTimeout(() => {
         colorTile.classList.remove("selected");
-      }, 500);
+      }, Math.max(offTimeout, 0));
     }, timeout - 250);
   }
 
@@ -60,12 +63,15 @@ function GeniusGame(colorTiles) {
       );
       reset();
     } else {
-      state.score++;
       state.currentTileIndex++;
 
       if (state.currentTileIndex >= state.pattern.length) {
+        state.score += 4;
+
         alert(
-          `OOH OOH! you've won!\nActual score: ${state.score}\nClick ok to play the next level`
+          `OOH OOH! you've won!\nActual score: ${
+            state.score
+          }\nClick ok to play the next level (${state.level + 1})`
         );
         nextLevel();
       }
@@ -80,15 +86,16 @@ function GeniusGame(colorTiles) {
       );
     }
     // light the color based on the pattern.
-    for (let i = 0; i < state.pattern.length; ) {
+    for (let i = 0; i < state.pattern.length; i++) {
       const colorTile = state.colorTiles[state.pattern[i]];
-      lightColorTileOnThenOff(colorTile, 1000 * i++);
+      lightColorTileOnThenOff(colorTile, 1000 * (i + 1));
     }
   }
 
   function nextLevel() {
+    state.level++;
     Object.assign(state, {
-      pattern: generatePattern(),
+      pattern: generatePattern(state.level),
       currentTileIndex: 0,
       colorTiles,
     });
@@ -107,6 +114,7 @@ function GeniusGame(colorTiles) {
     Object.assign(state, {
       score: 0,
       currentTileIndex: 0,
+      level: 0,
       pattern: generatePattern(),
       colorTiles,
     });
